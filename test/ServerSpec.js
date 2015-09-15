@@ -24,15 +24,15 @@ describe('', function() {
     request('http://127.0.0.1:4568/logout', function(error, res, body) {});
 
     // delete link for roflzoo from db so it can be created later for the test
-    db.knex('urls')
-      .where('url', '=', 'http://roflzoo.com/')
-      .del()
-      .catch(function(error) {
-        throw {
-          type: 'DatabaseError',
-          message: 'Failed to create test setup data'
-        };
-      });
+    // db.knex('urls')
+    //   .where('url', '=', 'http://roflzoo.com/')
+    //   .del()
+    //   .catch(function(error) {
+    //     throw {
+    //       type: 'DatabaseError',
+    //       message: 'Failed to create test setup data'
+    //     };
+    //   });
 
     // delete user Svnh from db so it can be created later for the test
     db.knex('users')
@@ -196,11 +196,13 @@ var xbeforeEach = function(){};
         });
       });
 
-      xit('Returns all of the links to display on the links page', function(done) {
+      xit('Returns all of the links to display on the links page when user is logged in', function(done) {
         var options = {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/links'
         };
+
+        // Log user in
 
         requestWithSession(options, function(error, res, body) {
           expect(body).to.include('"title":"Funny pictures of animals, funny dog pictures"');

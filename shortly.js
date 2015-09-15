@@ -27,9 +27,11 @@ app.use(express.static(__dirname + '/public'));
 
 
 function restrict(req, res, next) {
+  //We check if the user is defined on the current session
   if(req.session.user) {
     next();
   } else {
+    //Otherwise no user was found, redirect to login page
     req.session.error = 'Access denied.';
     res.redirect('/login');
   }
@@ -37,13 +39,20 @@ function restrict(req, res, next) {
 
 
 ///GET handling////
+
+app.get('/signup', 
+function(req, res) {
+  res.render('signup');
+});
  
-app.get('/login', function(req, res) {
+app.get('/login', 
+  function(req, res) {
   res.render('login');
 });
 
 app.get('/', 
 function(req, res) {
+  console.log("Phillip redirected to home");
   restrict(req, res, function(){
     res.render('index');
   });
@@ -65,32 +74,43 @@ function(req, res) {
   });
 });
 
-
-
-
 ////POST handling////
 
 app.post('/signup', 
   function(req, res) {
-  console.log("the req body is  ", req.body);
-  // new User({
-  //   'username': req.body.username,
-  //   'password': req.body.password
-  // }).save().then(function(){
-  //   res.send(200);
-  // });
+  // Creates a new User model and stores into db
+  Users.create({username: req.body.username})
+    .then(function(user) {
+      user.triggerThen('createHash', user, req.body.password)
+    })
+    .then(function(){
+      res.redirect('/');
+    });
 
-  Users.create({
-    username: req.body.username,
-    password: req.body.password
-  })
-  .then(function(user) {
-    console.log("The new user object is    ", user);
-    //Redirects to home page. Should modify to only redirect
-    //When signup is actually successful.
-    res.redirect('/');
-    // res.send(200, user);
-  })
+    // .triggerThen('createHash', req.body.password)
+    // .then 
+
+
+  //Take req.body.password 
+    //generate a salt
+    //generate a hash using password + salt
+
+    //Create the user
+
+
+  // Users.create({
+  //   username: req.body.username,
+  //   password: req.body.password
+  // })
+  // .then(function(user) {
+  //   console.log("The new user object is    ", user);
+  //   // Generate new session if the username and password are valid
+
+  //   //Redirects to home page. Should modify to only redirect
+  //   //When signup is actually successful.
+  //   res.redirect('/');
+  //   // res.send(200, user);
+  // })
 
 });
 
@@ -126,6 +146,11 @@ function(req, res) {
   });
 });
 
+
+/************************************************************/
+// Write your authentication routes here
+/************************************************************/
+
 app.post('/login', function(req, res) {
 
   // Check for the username and password attributes in database
@@ -134,20 +159,21 @@ app.post('/login', function(req, res) {
     password: req.body.password
   })
   .fetch()
-  .then(function(found) {
-    if (found) {
-      res.redirect('/');
+  .then(function(user) {
+    if (user) {
+      //If the user was found, we generate a new session and
+      //redirect the user to the home page.
+      req.session.regenerate(function() {
+        req.session.user = user;
+        req.session.success = "Success!";
+        res.redirect('/');
+      });
     } else {
       res.redirect('/login');
     }
   })
 
 });
-
-/************************************************************/
-// Write your authentication routes here
-/************************************************************/
-
 
 
 /************************************************************/
