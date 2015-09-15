@@ -19,7 +19,7 @@ var xbeforeEach = function(){};
 
 describe('', function() {
 
-  xbeforeEach(function() {
+  beforeEach(function() {
     // log out currently signed in user
     request('http://127.0.0.1:4568/logout', function(error, res, body) {});
 
@@ -80,7 +80,7 @@ var xbeforeEach = function(){};
         };
         // login via form and save session info
         requestWithSession(options, function(error, res, body) {
-          done();
+          // done();
         });
       });
     // });
@@ -289,7 +289,7 @@ var xbeforeEach = function(){};
 
   }); // 'Account Creation'
 
-  xdescribe('Account Login:', function(){
+  describe('Account Login:', function(){
 
     var requestWithSession = request.defaults({jar: true});
 

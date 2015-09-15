@@ -17,6 +17,7 @@ var app = express();
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(partials());
+// NOTE: CHANGE SECRET!
 app.use(session({secret: "HR32"}));
 // Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
@@ -84,7 +85,11 @@ app.post('/signup',
     password: req.body.password
   })
   .then(function(user) {
-    res.send(200, user);
+    console.log("The new user object is    ", user);
+    //Redirects to home page. Should modify to only redirect
+    //When signup is actually successful.
+    res.redirect('/');
+    // res.send(200, user);
   })
 
 });
@@ -119,6 +124,24 @@ function(req, res) {
       });
     }
   });
+});
+
+app.post('/login', function(req, res) {
+
+  // Check for the username and password attributes in database
+  new User({
+    username: req.body.username,
+    password: req.body.password
+  })
+  .fetch()
+  .then(function(found) {
+    if (found) {
+      res.redirect('/');
+    } else {
+      res.redirect('/login');
+    }
+  })
+
 });
 
 /************************************************************/
