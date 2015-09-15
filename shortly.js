@@ -2,6 +2,7 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 
 var db = require('./app/config');
@@ -16,6 +17,7 @@ var app = express();
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(partials());
+app.use(session({secret: "HR32"}));
 // Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
 // Parse forms (signup/login)
@@ -23,21 +25,68 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
+function restrict(req, res, next) {
+  if(req.session.user) {
+    next();
+  } else {
+    req.session.error = 'Access denied.';
+    res.redirect('/login');
+  }
+};
+
+
+///GET handling////
+ 
+app.get('/login', function(req, res) {
+  res.render('login');
+});
+
 app.get('/', 
 function(req, res) {
-  res.render('index');
+  restrict(req, res, function(){
+    res.render('index');
+  });
 });
 
 app.get('/create', 
 function(req, res) {
-  res.render('index');
+  restrict(req, res, function() {
+    res.render('index');
+  });
 });
 
 app.get('/links', 
 function(req, res) {
-  Links.reset().fetch().then(function(links) {
-    res.send(200, links.models);
+  restrict(req, res, function() {
+    Links.reset().fetch().then(function(links) {
+      res.send(200, links.models);
+    });
   });
+});
+
+
+
+
+////POST handling////
+
+app.post('/signup', 
+  function(req, res) {
+  console.log("the req body is  ", req.body);
+  // new User({
+  //   'username': req.body.username,
+  //   'password': req.body.password
+  // }).save().then(function(){
+  //   res.send(200);
+  // });
+
+  Users.create({
+    username: req.body.username,
+    password: req.body.password
+  })
+  .then(function(user) {
+    res.send(200, user);
+  })
+
 });
 
 app.post('/links', 
