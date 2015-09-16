@@ -79,13 +79,13 @@ function(req, res) {
 app.post('/signup', 
   function(req, res) {
   // Creates a new User model and stores into db
-  Users.create({username: req.body.username})
-    .then(function(user) {
-      user.triggerThen('createHash', user, req.body.password)
-    })
-    .then(function(){
-      res.redirect('/');
-    });
+  // Users.create({username: req.body.username})
+  //   .then(function(user) {
+  //     user.triggerThen('createHash', user, req.body.password)
+  //   })
+  //   .then(function(){
+  //     res.redirect('/');
+  //   });
 
     // .triggerThen('createHash', req.body.password)
     // .then 
@@ -98,19 +98,23 @@ app.post('/signup',
     //Create the user
 
 
-  // Users.create({
-  //   username: req.body.username,
-  //   password: req.body.password
-  // })
-  // .then(function(user) {
-  //   console.log("The new user object is    ", user);
-  //   // Generate new session if the username and password are valid
-
-  //   //Redirects to home page. Should modify to only redirect
-  //   //When signup is actually successful.
-  //   res.redirect('/');
-  //   // res.send(200, user);
-  // })
+  Users.create({
+    username : req.body.username,
+    password : req.body.password
+  })
+  .then(function(user) {
+    console.log("The new user object is    ", user);
+    // Generate new session if the username and password are valid
+    req.session.regenerate(function() {
+        req.session.user = user;
+        req.session.success = "Success!";
+        res.redirect('/');
+      });
+    //Redirects to home page. Should modify to only redirect
+    //When signup is actually successful.
+    
+    // res.send(200, user);
+  })
 
 });
 
