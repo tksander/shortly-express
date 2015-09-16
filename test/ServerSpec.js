@@ -47,16 +47,16 @@ describe('', function() {
       });
 
     // delete user Phillip from db so it can be created later for the test
-    db.knex('users')
-      .where('username', '=', 'Phillip')
-      .del()
-      .catch(function(error) {
-        // uncomment when writing authentication tests
-        // throw {
-        //   type: 'DatabaseError',
-        //   message: 'Failed to create test setup data'
-        // };
-      });
+    // db.knex('users')
+    //   .where('username', '=', 'Phillip')
+    //   .del()
+    //   .catch(function(error) {
+    //     // uncomment when writing authentication tests
+    //     // throw {
+    //     //   type: 'DatabaseError',
+    //     //   message: 'Failed to create test setup data'
+    //     // };
+    //   });
   });
 
   describe('Link creation:', function(){
@@ -196,7 +196,7 @@ var xbeforeEach = function(){};
         });
       });
 
-      xit('Returns all of the links to display on the links page when user is logged in', function(done) {
+      it('Returns all of the links to display on the links page when user is logged in', function(done) {
         var options = {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/links'

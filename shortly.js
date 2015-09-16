@@ -3,6 +3,8 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var bcrypt = require('bcrypt-nodejs');
+var Promise = require('bluebird');
 
 
 var db = require('./app/config');
@@ -49,6 +51,12 @@ app.get('/login',
   function(req, res) {
   res.render('login');
 });
+
+app.get('/logout', function(req, res) {
+  req.session.destroy(function(err) {
+    res.redirect('/');
+  });
+})
 
 app.get('/', 
 function(req, res) {
@@ -159,19 +167,23 @@ app.post('/login', function(req, res) {
 
   // Check for the username and password attributes in database
   new User({
-    username: req.body.username,
-    password: req.body.password
+    username: req.body.username
   })
   .fetch()
   .then(function(user) {
     if (user) {
-      //If the user was found, we generate a new session and
-      //redirect the user to the home page.
-      req.session.regenerate(function() {
-        req.session.user = user;
-        req.session.success = "Success!";
-        res.redirect('/');
-      });
+      var hash = user.get('password');
+      if (bcrypt.compareSync(req.body.password, hash)) {
+        //If the user was found, we generate a new session and
+        //redirect the user to the home page.
+        req.session.regenerate(function() {
+          req.session.user = user;
+          req.session.success = "Success!";
+          res.redirect('/');
+        });
+      } else {
+      res.redirect('/login');
+      }
     } else {
       res.redirect('/login');
     }
